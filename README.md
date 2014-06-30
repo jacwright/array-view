@@ -160,6 +160,20 @@ both be collected by the runtime and no detach will be needed.
 view.detach();
 ```
 
+Other Uses
+----------
+
+While often array-view may be used as a view onto a source array, it may also be
+use as an array that persists its filters and sorts or adds pagination. You
+don't need to keep a handle on the source array to use the view.
+
+```js
+var friends = [].view();
+friends.sort('lastName.toLowerCase()', 'firstName.toLowerCase()')
+
+friends.push(friend1, friend2, friend3); // remains sorted at all times
+```
+
 License
 -------
 
