@@ -154,7 +154,7 @@
     // and returns true or false if item should be allowed in the array. More
     // than one filter may be added and `name` (optional) can be used to remove
     // the filter later.
-    filter: function filter(name, filter) {
+    addFilter: function addFilter(name, filter) {
       if (!this._filters) define(this, '_filters', []);
       if (typeof name == 'function') {
         filter = name;
@@ -200,7 +200,7 @@
     // chained properties (such as name.first or comments.length) may be as deep
     // as needed and will null-terminate, so no errors will occur. A null will
     // be treated as LESS THAN a non-null value.
-    sort: function sort(sort) {
+    setSort: function setSort(sort) {
       if (sort && typeof sort != 'function') {
         sort = createSort(proto.slice.call(arguments));
       }
@@ -211,6 +211,11 @@
     removeSort: function removeSort() {
       define(this, '_sort', undefined);
       return this.update();
+    },
+
+    sort: function sort() {
+      var copy = this.slice();
+      return copy.sort.apply(copy, arguments);
     },
 
     // Paginates the view by splitting it up into pages. Each page has
@@ -296,7 +301,7 @@
     // memory. If the view and source arrays are no longer referenced, both
     // should be garbage collected. This creates a new source array that can be
     // used to update the view or discarded for garbage collection.
-    detatch: function detatch() {
+    detach: function detach() {
       remove(this._source._views, this);
       var newSource = this._source.slice();
       initSource(newSource);

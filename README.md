@@ -45,7 +45,7 @@ them, while still maintaining a link to the source array.
 ```js
 var src = [1, 5, 8, -2, 9, -4, 2];
 var view = src.view();
-view.filter(function(item) {
+view.addFilter(function(item) {
   return item >= 0;
 }); // view = [1, 5, 6, 9, 2]
 
@@ -56,16 +56,16 @@ view; // view = [1, 5, 9, 2, 8]
 
 As items are added to the source array, they will show up in the view array,
 unless they do not pass the filter. Also note, the return from a call to
-`filter` is the view itself, since it is doing a filter on itself (this is
+`addFilter` is the view itself, since it is doing a filter on itself (this is
 similar to how the native array `sort` method works).
 
 Filters may be removed by reference or by name if you pass in a name when adding
 them.
 
 ```js
-view.filter('positive', function(item) {
+view.addFilter('positive', function(item) {
   return item >= 0;
-}).filter(function notNull(item) {
+}).addFilter(function notNull(item) {
   return item != null;
 });
 
@@ -77,7 +77,7 @@ If you don't pass any arguments into `removeFilter()` then filters will be
 removed in the reverse order they were added. e.g. the last filter added will be
 removed first.
 
-### Sort
+### Sorting
 
 Views may also have a sort applied to them. They optionally follow the same API
 as the native `sort` method, taking a function with two arguments that returns
@@ -88,11 +88,11 @@ automatically.
 ```js
 var source = [4, 3, 17, 1, -3];
 var view = source.view();
-view.sort(); // [-3, 1, 17, 3, 4]; note that the default sort isn't numerical
+view.setSort(); // [-3, 1, 17, 3, 4]; note that the default sort isn't numerical
 source.push(2);
 view; // [-3, 1, 17, 2, 3, 4];
 
-view.sort(function(a, b) {
+view.setSort(function(a, b) {
   return a - b;
 }); // [-3, 1, 2, 3, 4, 17];
 ```
@@ -103,10 +103,10 @@ may sort ascending or descending on one or more properties, and the properties
 may be chained using the dot-syntax. Below are some examples.
 
 ```js
-view.sort('dateCreated', 'desc');
-view.sort('lastName.toLowerCase()', 'firstName.toLowerCase()', ['age', 'desc']);
-view.sort('comments.length', ['postDate', 'desc']);
-view.sort(['dateCreated', 'desc'], ['title', 'asc']);
+view.setSort('dateCreated', 'desc');
+view.setSort('lastName.toLowerCase()', 'firstName.toLowerCase()', ['age', 'desc']);
+view.setSort('comments.length', ['postDate', 'desc']);
+view.setSort(['dateCreated', 'desc'], ['title', 'asc']);
 
 view.removeSort();
 ```
@@ -120,9 +120,12 @@ null value. Functions may even be used. If anything more complex than this is
 required, just use a sort function.
 
 Note that although the sort API allows you to sort on multiple fields, there is
-only one actual sort on a view, so subsequent calls to `sort` will override the
+only one actual sort on a view, so subsequent calls to `setSort` will override the
 previous sorts, and `removeSort()` takes no arguments, only removing the current
 sort.
+
+Because views employ persistance with their source, the native `sort()` function
+will return a copy of the view in its current state, sorted 
 
 ### Pagination
 
@@ -133,7 +136,7 @@ up on each page.
 
 ```js
 var source = [3, 2, 4, 1, 5, 8, 9, 7, 6];
-var view = source.view().sort();
+var view = source.view().setSort();
 view.paginate(5);
 view; // [1, 2, 3, 4, 5];
 view.pageNumber(); // 1
@@ -181,7 +184,7 @@ don't need to keep a handle on the source array to use the view.
 
 ```js
 var friends = [].view();
-friends.sort('lastName.toLowerCase()', 'firstName.toLowerCase()')
+friends.setSort('lastName.toLowerCase()', 'firstName.toLowerCase()')
 
 friends.push(friend1, friend2, friend3); // remains sorted at all times
 ```
