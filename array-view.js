@@ -166,14 +166,18 @@
       return this.update();
     },
 
-    // Removea a persistent filter which has been added. `filter` may be the
-    // filter function or the name if `name` was used in `addFilter`.
+    // Removes a persistent filter which has been added. `filter` may be the
+    // filter function or the name if `name` was used in `addFilter`. If
+    // `filter` is not provided then `removeFilter()` will remove the last
+    // filter added.
     removeFilter: function removeFilter(filter) {
       if (!this._filters) return this;
       if (typeof filter == 'string') {
         var name = filter;
         filter = this._filters[name];
         delete this._filters[name];
+      } else if (typeof filter == 'undefined') {
+        filter = this._filters[this._filters.length - 1];
       }
       if (typeof filter != 'function') return this;
       remove(this._filters, filter);

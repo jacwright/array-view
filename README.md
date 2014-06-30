@@ -73,6 +73,10 @@ view.filter('positive', function(item) {
 view.removeFilter('positive').removeFilter(notNull);
 ```
 
+If you don't pass any arguments into `removeFilter()` then filters will be
+removed in the reverse order they were added. e.g. the last filter added will be
+removed first.
+
 ### Sort
 
 Views may also have a sort applied to them. They optionally follow the same API
