@@ -103,6 +103,8 @@ view.sort('dateCreated', 'desc');
 view.sort('lastName.toLowerCase()', 'firstName.toLowerCase()', ['age', 'desc']);
 view.sort('comments.length', ['postDate', 'desc']);
 view.sort(['dateCreated', 'desc'], ['title', 'asc']);
+
+view.removeSort();
 ```
 
 When only sorting by one property, you may use asc/desc as the second parameter.
@@ -112,6 +114,11 @@ properties an array is required to add the sort order 'desc'. Chained properties
 terminate so no errors will occur. A null will be treated as LESS THAN a non-
 null value. Functions may even be used. If anything more complex than this is
 required, just use a sort function.
+
+Note that although the sort API allows you to sort on multiple fields, there is
+only one actual sort on a view, so subsequent calls to `sort` will override the
+previous sorts, and `removeSort()` takes no arguments, only removing the current
+sort.
 
 ### Pagination
 
