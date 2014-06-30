@@ -100,17 +100,18 @@ may be chained using the dot-syntax. Below are some examples.
 
 ```js
 view.sort('dateCreated', 'desc');
-view.sort('lastName', 'firstName', ['age', 'desc']);
+view.sort('lastName.toLowerCase()', 'firstName.toLowerCase()', ['age', 'desc']);
 view.sort('comments.length', ['postDate', 'desc']);
 view.sort(['dateCreated', 'desc'], ['title', 'asc']);
 ```
 
 When only sorting by one property, you may use asc/desc as the second parameter.
 'asc' is always the default and is not necessary. When sorting by multiple
-properties an array is required to add the sort order 'desc'. chained properties
+properties an array is required to add the sort order 'desc'. Chained properties
 (such as name.first or comments.length) may be as deep as needed and will null-
-terminate, so no errors will occur. A null will be treated as LESS THAN a non-
-null value.
+terminate so no errors will occur. A null will be treated as LESS THAN a non-
+null value. Functions may even be used. If anything more complex than this is
+required, just use a sort function.
 
 ### Pagination
 

@@ -97,29 +97,51 @@
     desc: -1
   }
 
+  function createGetter(field, dir) {
+    var fields = field.split('.'),
+        body = 'return ',
+        ref = 0,
+        refs = [],
+        prevRef = 'item.';
+
+    while (field = fields.shift()) {
+      if (fields.length) {
+        curRef = '_ref' + ref++;
+        refs.push(curRef);
+        body += '(' + curRef + ' = ' + prevRef + field + ') == null ? null : ';
+        prevRef = curRef + '.';
+      } else {
+        body += prevRef + field;
+      }
+    }
+    if (refs.length) body = 'var ' + refs.join(',') + ';\n' + body;
+    var getter = new Function('item', body);
+    getter.dir = dir || 1;
+    return getter;
+  }
+
   // create a sort function from arguments, see comments on `sort` below
   function createSort(sorts) {
     if (sorts[1] == 'asc' || sorts[1] == 'desc') sorts = [sorts];
+    var getters = sorts.map(function(field) {
+      var dir = 1;
+      if (Array.isArray(field)) {
+        dir = sortDir[field[1]] || field[1];
+        field = field[0];
+      }
+      return createGetter(field, dir);
+    });
+
     return function(a, b) {
-      for (var i = 0; i < sorts.length; i++) {
-        var field = sorts[i];
-        var dir = 1;
-        if (Array.isArray(field)) {
-          dir = sortDir[field[1]] || field[1];
-          field = field[0];
-        }
-        var valueA = a;
-        var valueB = b;
-        var fields = field.split('.');
-        fields.forEach(function(field) {
-          valueA = valueA != null ? valueA[field] : null;
-          valueB = valueB != null ? valueB[field] : null;
-        });
+      for (var i = 0; i < getters.length; i++) {
+        var getter = getters[i];
+        var valueA = getter(a);
+        var valueB = getter(b);
         // handle nulls as less than
-        if (valueB != null && valueA == null) return dir;
-        else if (valueA != null && valueB == null) return -dir;
-        else if (valueA > valueB) return dir;
-        else if (valueB > valueA) return -dir;
+        if (valueB != null && valueA == null) return getter.dir;
+        else if (valueA != null && valueB == null) return -getter.dir;
+        else if (valueA > valueB) return getter.dir;
+        else if (valueB > valueA) return -getter.dir;
       }
       return 0;
     }
@@ -176,7 +198,7 @@
     // be treated as LESS THAN a non-null value.
     sort: function sort(sort) {
       if (sort && typeof sort != 'function') {
-        sort = createSort(proto.slice(arguments));
+        sort = createSort(proto.slice.call(arguments));
       }
       define(this, '_sort', sort || true);
       return this.update();
