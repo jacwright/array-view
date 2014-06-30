@@ -243,6 +243,11 @@
       return Math.ceil(this._unpaginated.length / this._pageSize);
     },
 
+    // Returns the total length of the array, before pagination
+    total: function total() {
+      return this._unpaginated.length;
+    },
+
     // Returns the page number which an item will appear on for a paingated
     // array view.
     itemPageNumber: function itemsPageNumber(item) {
