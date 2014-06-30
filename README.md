@@ -150,6 +150,16 @@ array or it is filtered out from the view, `itemPageNumber` will return `0`. The
 pages start at 1 and go up from there. They are not zero-based like an array's
 indices.
 
+### Cleanup
+
+When done with a view you can detach it from the source array for garbage
+collection. If both view and source arrays are no longer referenced they should
+both be collected by the runtime and no detach will be needed.
+
+```js
+view.detach();
+```
+
 License
 -------
 

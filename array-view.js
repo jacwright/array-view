@@ -65,11 +65,15 @@
 
   // add view functions to the view array
   function initView(source, view) {
+    attachToSource(source, view);
+    define(view, viewMethods);
+    view.update();
+  }
+
+  function attachToSource(source, view) {
     define(view, '_source', source);
     source._views.push(view);
-    define(view, viewMethods);
     bindModifiers(source, view);
-    view.update();
   }
 
   // bind the view's modifiers to the source, never modify the view
@@ -236,6 +240,8 @@
       return this.updatePagination();
     },
 
+    // Updates only the pagination, skipping the filtering and sorting steps
+    // for simple page changes.
     updatePagination: function updatePagination() {
       var array = this._unpaginated;
       if (this._pageSize) {
@@ -252,6 +258,19 @@
       // Allow views to have views
       this.updateViews();
       return this;
+    },
+
+    // Detach the view from its source array. Use this to clean up the view as
+    // it will not be garbage collected as long as the source array is kept in
+    // memory. If the view and source arrays are no longer referenced, both
+    // should be garbage collected. This creates a new source array that can be
+    // used to update the view or discarded for garbage collection.
+    detatch: function detatch() {
+      remove(this._source._views, this);
+      var newSource = this._source.slice();
+      initSource(newSource);
+      attachToSource(newSource, this);
+      return newSource;
     }
   }
 
