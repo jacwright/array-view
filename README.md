@@ -175,6 +175,15 @@ both be collected by the runtime and no detach will be needed.
 view.detach();
 ```
 
+### Gotchas
+
+When working with the objects within an array, be sure to call `view.update()`
+when the object changes properites that affect sort order or filtering.
+The view only updates when items are added or removed, or the filtering or
+sorting change. It can't know when any property of any object within it
+is changed. Also, to update all views on an array you can call
+`source.updateViews()`.
+
 Other Uses
 ----------
 
