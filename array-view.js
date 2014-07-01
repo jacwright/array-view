@@ -122,6 +122,7 @@
 
   // create a sort function from arguments, see comments on `sort` below
   function createSort(sorts) {
+    sorts = proto.slice.call(arguments);
     if (sorts[1] == 'asc' || sorts[1] == 'desc') sorts = [sorts];
     var getters = sorts.map(function(field) {
       var dir = 1;
@@ -146,6 +147,9 @@
       return 0;
     }
   }
+
+  // Adds the incredibly useful `createSort` function for any array to use.
+  define(Array, 'createSort', createSort);
 
 
   var viewMethods = {
@@ -202,7 +206,7 @@
     // be treated as LESS THAN a non-null value.
     setSort: function setSort(sort) {
       if (sort && typeof sort != 'function') {
-        sort = createSort(proto.slice.call(arguments));
+        sort = createSort.apply(null, arguments);
       }
       define(this, '_sort', sort || true);
       return this.update();
