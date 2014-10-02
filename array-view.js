@@ -260,7 +260,7 @@
     // Returns the page number which an item will appear on for a paingated
     // array view.
     itemPageNumber: function itemsPageNumber(item) {
-      var index = this.indexOf(item);
+      var index = this._unpaginated.indexOf(item);
       if (index == -1) return 0;
       if (!this._pageSize) return 1;
       return Math.floor(index / this._pageSize) + 1;
