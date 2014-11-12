@@ -217,11 +217,6 @@
       return this.update();
     },
 
-    sort: function sort() {
-      var copy = this.slice();
-      return copy.sort.apply(copy, arguments);
-    },
-
     // Paginates the view by splitting it up into pages. Each page has
     // `pageSize` items in it--or fewer if it is the last page. `page` is the
     // initial page the view will display (default is 1). The page can be set
