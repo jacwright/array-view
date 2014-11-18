@@ -10,6 +10,7 @@
     } else {
       Object.defineProperty(obj, key, {
         configurable: true,
+        writable: true,
         value: value
       })
     }
@@ -21,8 +22,26 @@
     view: function view() {
       return createView(this);
     },
+    update: function update() {
+      return this.updateView() || this.updateViews();
+    },
+    // Updates the view to reflect the latest state. This array will contain
+    // only items from the source that haven't been filtered if any filters were
+    // added, in the sort order that has been set if any, and only the items on
+    // the current page if pagination was set. Returns false if not a view.
+    updateView: function updateView() {
+      if (!this._source) return false;
+      var array = this._source.slice();
+      if (this._filters) this._filters.forEach(function(filter) {
+        array = array.filter(filter);
+      });
+      if (this._sort) array.sort(this._sort);
+      define(this, '_unpaginated', array);
+      this.updatePagination();
+      return true;
+    },
     updateViews: function updateViews() {
-      if (!Array.isArray(this._views)) return false;
+      if (!Array.isArray(this._views) || !this._views.length) return false;
       this._views.forEach(function(view) {
         view.update();
       });
@@ -120,6 +139,10 @@
     return getter;
   }
 
+  function isNumeric(value) {
+    return !isNaN(parseFloat(value)) && isFinite(value);
+  }
+
   // create a sort function from arguments, see comments on `sort` below
   function createSort(sorts) {
     sorts = proto.slice.call(arguments);
@@ -138,7 +161,7 @@
         var getter = getters[i];
         var valueA = getter(a);
         var valueB = getter(b);
-        if (!isNaN(valueA) && !isNaN(valueB)) {
+        if (isNumeric(valueA) && isNumeric(valueB)) {
           valueA = parseFloat(valueA);
           valueB = parseFloat(valueB);
         }
@@ -171,7 +194,8 @@
       if (typeof filter != 'function') return this;
       if (name) this._filters[name] = filter;
       this._filters.push(filter);
-      return this.update();
+      this.updateView();
+      return this;
     },
 
     // Removes a persistent filter which has been added. `filter` may be the
@@ -189,7 +213,8 @@
       }
       if (typeof filter != 'function') return this;
       remove(this._filters, filter);
-      return this.update();
+      this.updateView();
+      return this;
     },
 
     // Sets a persistent sort on the array. Objects added or removed will
@@ -213,12 +238,14 @@
         sort = createSort.apply(null, arguments);
       }
       define(this, '_sort', sort || true);
-      return this.update();
+      this.updateView();
+      return this;
     },
 
     removeSort: function removeSort() {
       define(this, '_sort', undefined);
-      return this.update();
+      this.updateView();
+      return this;
     },
 
     // Paginates the view by splitting it up into pages. Each page has
@@ -263,20 +290,6 @@
       if (index == -1) return 0;
       if (!this._pageSize) return 1;
       return Math.floor(index / this._pageSize) + 1;
-    },
-
-    // Updates the view to reflect the latest state. This array will contain
-    // only items from the source that haven't been filtered if any filters were
-    // added, in the sort order that has been set if any, and only the items on
-    // the current page if pagination was set.
-    update: function update() {
-      var array = this._source.slice();
-      if (this._filters) this._filters.forEach(function(filter) {
-        array = array.filter(filter);
-      });
-      if (this._sort) array.sort(this._sort);
-      define(this, '_unpaginated', array);
-      return this.updatePagination();
     },
 
     // Updates only the pagination, skipping the filtering and sorting steps
