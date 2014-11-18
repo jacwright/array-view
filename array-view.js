@@ -138,6 +138,10 @@
         var getter = getters[i];
         var valueA = getter(a);
         var valueB = getter(b);
+        if (!isNaN(valueA) && !isNaN(valueB)) {
+          valueA = parseFloat(valueA);
+          valueB = parseFloat(valueB);
+        }
         // handle nulls as less than
         if (valueB != null && valueA == null) return getter.dir;
         else if (valueA != null && valueB == null) return -getter.dir;
