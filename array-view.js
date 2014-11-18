@@ -143,6 +143,10 @@
     return !isNaN(parseFloat(value)) && isFinite(value);
   }
 
+  function isBlank(value) {
+    return value == null || value == '';
+  }
+
   // create a sort function from arguments, see comments on `sort` below
   function createSort(sorts) {
     sorts = proto.slice.call(arguments);
@@ -166,8 +170,8 @@
           valueB = parseFloat(valueB);
         }
         // handle nulls as less than
-        if (valueB != null && valueA == null) return getter.dir;
-        else if (valueA != null && valueB == null) return -getter.dir;
+        if (!isBlank(valueB) && isBlank(valueA)) return getter.dir;
+        else if (!isBlank(valueA) && isBlank(valueB)) return -getter.dir;
         else if (valueA > valueB) return getter.dir;
         else if (valueB > valueA) return -getter.dir;
       }
